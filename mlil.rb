@@ -15,9 +15,9 @@ def due item_id, date #Go back later and do either name, or Id
   Item.find_by(id: item_id).update(due_date: date)
 end
 
-# def done
-#   Gif.create! views: 0, url: url
-# end
+def done item_id #Go back later and do either name, or Id
+  Item.find_by(id: item_id).update(status: "Complete")
+end
 
 # def show_list
 #   Gif.order(created_at: :desc).each do |g|
@@ -25,11 +25,21 @@ end
 #   end
 # end
 
-# def show_incomplete
-# end
-
-# def show_all_items
-# end
+def show thing=nil
+  if thing == "all"
+    x = Item.all
+    x.each do |p|
+    puts "Id: #{p.id}, Task name: #{p.name}, Status: #{p.status}" #from #{list_id.name}"
+    end
+  elsif thing != nil
+  else
+  #fix so show list belong to as well
+    x = Item.where(status: "Incomplete") 
+    x.each do |p|
+      puts "Id: #{p.id}, Task name: #{p.name}" #from #{list_id.name}"
+    end
+  end
+end
 
 # def next tag_name=nil
 #   tags = if tag_name
@@ -56,19 +66,20 @@ case command
 when "add"
   list_name, todo_item = ARGV
   add list_name, todo_item
-when "due" #FAIL
+when "due"
   item_id, date = ARGV
   due item_id, date
-when "done" #FAIL
+when "done"
   n = ARGV
   done n
-when "list" #FAIL
-  show_incomplete
-when "list" #FAIL
-  listname = ARGV
-  show_list listname
-when "list all" #FAIL
-  show_all_items
+when "list"
+  arg = ARGV
+  show arg
+# when "list" #FAIL
+#   listname = ARGV
+#   show_list listname
+# when "list all"
+#   show_all_items
 when "next" #FAIL
   tag_name = ARGV.first
   surprise! tag_name
