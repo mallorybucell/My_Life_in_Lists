@@ -59,9 +59,17 @@ def search string
   task_match = []
   task = Item.find_each do |m| 
     if m.name.match(string) #|| m.description.match(string) (default this not to nil or write rescue)
-        puts "Id: #{m.id} Name: #{m.name}" 
+        task_match << m
     else
       next
+    end
+  end
+  if task_match == []
+     puts "No match found for '#{string}'"
+  else
+    puts "Match found!"
+    task_match.each do |p|
+      puts  "Id: #{p.id} Name: #{p.name}" 
     end
   end
 end
