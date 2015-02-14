@@ -25,19 +25,27 @@ end
 #   end
 # end
 
-def show thing=nil
+def show_specific thing=nil
   if thing == "all"
     x = Item.all
     x.each do |p|
-    puts "Id: #{p.id}, Task name: #{p.name}, Status: #{p.status}" #from #{list_id.name}"
+      puts "Id: #{p.id}, Task name: #{p.name}, Status: #{p.status}" #from #{list_id.name}"
     end
-  elsif thing != nil
   else
-  #fix so show list belong to as well
-    x = Item.where(status: "Incomplete") 
+    y = List.where(name: thing)
+    y = y.first.id
+    x = Item.where(list_id: y)
     x.each do |p|
-      puts "Id: #{p.id}, Task name: #{p.name}" #from #{list_id.name}"
+      puts "Id: #{p.id}, Task name: #{p.name}, Status: #{p.status}" #from #{list_id.name}"
     end
+  end
+end
+
+def show_incomplete
+  #fix so show list belong to as well
+  x = Item.where(status: "Incomplete") 
+  x.each do |p|
+    puts "Id: #{p.id}, Task name: #{p.name}" #from #{list_id.name}"
   end
 end
 
@@ -73,13 +81,15 @@ when "done"
   n = ARGV
   done n
 when "list"
-  arg = ARGV
-  show arg
-# when "list" #FAIL
-#   listname = ARGV
-#   show_list listname
+  thing = ARGV.shift
+  if !(thing == nil)
+    show_specific thing
+  else
+    show_incomplete
+  end
 # when "list all"
-#   show_all_items
+#   thing = ARGV
+#   show_specific thing
 when "next" #FAIL
   tag_name = ARGV.first
   surprise! tag_name
