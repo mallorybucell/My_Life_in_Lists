@@ -19,17 +19,12 @@ def done item_id #Go back later and do either name, or Id
   Item.find_by(id: item_id).update(status: "Complete")
 end
 
-# def show_list
-#   Gif.order(created_at: :desc).each do |g|
-#     puts "#{g.id})\t#{g.created_at}\t#{g.views}\t#{g.url}"
-#   end
-# end
-
 def show_specific thing=nil
   if thing == "all"
     x = Item.all
     x.each do |p|
-      puts "Id: #{p.id}, Task name: #{p.name}, Status: #{p.status}" #from #{list_id.name}"
+      print "Id: #{p.id}, Task name: #{p.name}, Status: #{p.status}" #from #{list_id.name}"
+      puts
     end
   else
     y = List.where(name: thing)
@@ -49,25 +44,27 @@ def show_incomplete
   end
 end
 
-# def next tag_name=nil
-#   tags = if tag_name
-#     Tag.where(name: tag_name).first!
-#   else
-#     Tag.all
-#   end
-#   g = tag.gifs.order("RANDOM()").first
+def next_item
+  if task = Item.where.not(due_date: 0)
+    t = task.order("RANDOM()").first
+  else   
+    task = Item.all
+    t = task.order("RANDOM()").first
+  end
+  print "Id: #{t.id}, Task name: #{t.name}, Status: #{t.status}"
+  puts
+end
 
-#   g.views += 1
-#   g.save!
-#   puts "Opening #{g.url}"
-#   `open '#{g.url}'`
-# end
-
-# def search string
-#   t = Tag.where(name: tag_name).first_or_create!
-#   # Note: we're now verifying the gif_id is valid before saving a tag
-#   Gif.find(gif_id).tags << t
-# end
+def search string
+  task_match = []
+  task = Item.find_each do |m| 
+    if m.name.match(string) #|| m.description.match(string) (default this not to nil or write rescue)
+        puts "Id: #{m.id} Name: #{m.name}" 
+    else
+      next
+    end
+  end
+end
 
 command = ARGV.shift
 case command
@@ -87,14 +84,10 @@ when "list"
   else
     show_incomplete
   end
-# when "list all"
-#   thing = ARGV
-#   show_specific thing
-when "next" #FAIL
-  tag_name = ARGV.first
-  surprise! tag_name
+when "next"
+  next_item
 when "search" #FAIL
-  string = ARGV
+  string = ARGV.shift.to_s
   search string
 else
   puts "???"
