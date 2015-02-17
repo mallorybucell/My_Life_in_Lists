@@ -4,6 +4,9 @@ require "./lib/all"
 
 puts "Running MyLifeInLists"
 
+def toPrint
+  @p
+end
 
 def add list_name, todo_item
   l = List.where(name: list_name).first_or_create!
@@ -23,7 +26,8 @@ def show_specific thing=nil
   if thing == "all"
     x = Item.all
     x.each do |p|
-      print "Id: #{p.id}, Task name: #{p.name}, Status: #{p.status}" #from #{list_id.name}"
+      toPrint = p
+      print_item(toPrint) #from #{list_id.name}"
       puts
     end
   else
@@ -31,7 +35,8 @@ def show_specific thing=nil
     y = y.first.id
     x = Item.where(list_id: y)
     x.each do |p|
-      puts "Id: #{p.id}, Task name: #{p.name}, Status: #{p.status}" #from #{list_id.name}"
+      toPrint = p
+      print_item(toPrint) #from #{list_id.name}"
     end
   end
 end
@@ -40,25 +45,27 @@ def show_incomplete
   #fix so show list belong to as well
   x = Item.where(status: "Incomplete") 
   x.each do |p|
-    puts "Id: #{p.id}, Task name: #{p.name}" #from #{list_id.name}"
+    toPrint =  p
+    print_item(toPrint) #from #{list_id.name}"
   end
 end
 
 def next_item
   if task = Item.where.not(due_date: 0)
     t = task.order("RANDOM()").first
+    toPrint = t
   else   
     task = Item.all
     t = task.order("RANDOM()").first
+     toPrint = t
   end
-  print "Id: #{t.id}, Task name: #{t.name}, Status: #{t.status}"
-  puts
+  print_item(toPrint)
 end
 
 def search string
   task_match = []
   task = Item.find_each do |m| 
-    if m.name.match(string) #|| m.description.match(string) (default this not to nil or write rescue)
+    if m.name.downcase.match(string) #|| m.description.match(string) (default this not to nil or write rescue)
         task_match << m
     else
       next
@@ -69,9 +76,17 @@ def search string
   else
     puts "Match found!"
     task_match.each do |p|
-      puts  "Id: #{p.id} Name: #{p.name}" 
+      toPrint = p
+  binding.pry
+      print_item(toPrint)
     end
   end
+end
+
+def print_item toPrint
+  print  "Id: #{toPrint.id} Name: #{toPrint.name} Status: #{toPrint.status} "
+    print "Due: #{toPrint.due_date }" if toPrint.due_date != nil 
+  puts
 end
 
 command = ARGV.shift
@@ -94,7 +109,7 @@ when "list"
   end
 when "next"
   next_item
-when "search" #FAIL
+when "search"
   string = ARGV.shift.to_s
   search string
 else
