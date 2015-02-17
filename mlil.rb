@@ -23,21 +23,14 @@ def done item_id #Go back later and do either name, or Id
 end
 
 def show_specific thing=nil
-  if thing == "all"
-    x = Item.all
-    x.each do |p|
-      toPrint = p
-      print_item(toPrint) #from #{list_id.name}"
-      puts
+  items = if thing == "all"
+    Item.all
+    else
+      List.where(name: thing).items
     end
-  else
-    y = List.where(name: thing)
-    y = y.first.id
-    x = Item.where(list_id: y)
-    x.each do |p|
-      toPrint = p
-      print_item(toPrint) #from #{list_id.name}"
-    end
+  items.each do |p|
+    toPrint = p
+    print_item(toPrint) #from #{list_id.name}"
   end
 end
 
@@ -51,14 +44,12 @@ def show_incomplete
 end
 
 def next_item
-  if task = Item.where.not(due_date: 0)
-    t = task.order("RANDOM()").first
-    toPrint = t
-  else   
-    task = Item.all
-    t = task.order("RANDOM()").first
-     toPrint = t
-  end
+  task = if Item.where.not(due_date: 0, status: "Complete") == true
+    else 
+      Item.all
+    end
+  t = task.order("RANDOM()").first
+  toPrint = t
   print_item(toPrint)
 end
 
@@ -77,7 +68,6 @@ def search string
     puts "Match found!"
     task_match.each do |p|
       toPrint = p
-  binding.pry
       print_item(toPrint)
     end
   end
